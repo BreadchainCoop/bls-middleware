@@ -28,61 +28,61 @@ library BN256G2 {
      * @param pt2yy Coefficient 2 of y on point 2
      * @return (pt3xx, pt3xy, pt3yx, pt3yy)
      */
-    // function ECTwistAdd(
-    //     uint256 pt1xx,
-    //     uint256 pt1xy,
-    //     uint256 pt1yx,
-    //     uint256 pt1yy,
-    //     uint256 pt2xx,
-    //     uint256 pt2xy,
-    //     uint256 pt2yx,
-    //     uint256 pt2yy
-    // ) public view returns (uint256, uint256, uint256, uint256) {
-    //     if (pt1xx == 0 && pt1xy == 0 && pt1yx == 0 && pt1yy == 0) {
-    //         if (!(pt2xx == 0 && pt2xy == 0 && pt2yx == 0 && pt2yy == 0)) {
-    //             assert(_isOnCurve(pt2xx, pt2xy, pt2yx, pt2yy));
-    //         }
-    //         return (pt2xx, pt2xy, pt2yx, pt2yy);
-    //     } else if (pt2xx == 0 && pt2xy == 0 && pt2yx == 0 && pt2yy == 0) {
-    //         assert(_isOnCurve(pt1xx, pt1xy, pt1yx, pt1yy));
-    //         return (pt1xx, pt1xy, pt1yx, pt1yy);
-    //     }
+    function ECTwistAdd(
+        uint256 pt1xx,
+        uint256 pt1xy,
+        uint256 pt1yx,
+        uint256 pt1yy,
+        uint256 pt2xx,
+        uint256 pt2xy,
+        uint256 pt2yx,
+        uint256 pt2yy
+    ) public view returns (uint256, uint256, uint256, uint256) {
+        if (pt1xx == 0 && pt1xy == 0 && pt1yx == 0 && pt1yy == 0) {
+            if (!(pt2xx == 0 && pt2xy == 0 && pt2yx == 0 && pt2yy == 0)) {
+                assert(_isOnCurve(pt2xx, pt2xy, pt2yx, pt2yy));
+            }
+            return (pt2xx, pt2xy, pt2yx, pt2yy);
+        } else if (pt2xx == 0 && pt2xy == 0 && pt2yx == 0 && pt2yy == 0) {
+            assert(_isOnCurve(pt1xx, pt1xy, pt1yx, pt1yy));
+            return (pt1xx, pt1xy, pt1yx, pt1yy);
+        }
 
-    //     assert(_isOnCurve(pt1xx, pt1xy, pt1yx, pt1yy));
-    //     assert(_isOnCurve(pt2xx, pt2xy, pt2yx, pt2yy));
+        assert(_isOnCurve(pt1xx, pt1xy, pt1yx, pt1yy));
+        assert(_isOnCurve(pt2xx, pt2xy, pt2yx, pt2yy));
 
-    //     uint256[6] memory pt3 = _ECTwistAddJacobian(pt1xx, pt1xy, pt1yx, pt1yy, 1, 0, pt2xx, pt2xy, pt2yx, pt2yy, 1, 0);
+        uint256[6] memory pt3 = _ECTwistAddJacobian(pt1xx, pt1xy, pt1yx, pt1yy, 1, 0, pt2xx, pt2xy, pt2yx, pt2yy, 1, 0);
 
-    //     return _fromJacobian(pt3[PTXX], pt3[PTXY], pt3[PTYX], pt3[PTYY], pt3[PTZX], pt3[PTZY]);
-    // }
+        return _fromJacobian(pt3[PTXX], pt3[PTXY], pt3[PTYX], pt3[PTYY], pt3[PTZX], pt3[PTZY]);
+    }
 
-    // /**
-    //  * @notice Multiply a twist point by a scalar
-    //  * @param s     Scalar to multiply by
-    //  * @param pt1xx Coefficient 1 of x
-    //  * @param pt1xy Coefficient 2 of x
-    //  * @param pt1yx Coefficient 1 of y
-    //  * @param pt1yy Coefficient 2 of y
-    //  * @return (pt2xx, pt2xy, pt2yx, pt2yy)
-    //  */
-    // function ECTwistMul(uint256 s, uint256 pt1xx, uint256 pt1xy, uint256 pt1yx, uint256 pt1yy)
-    //     public
-    //     view
-    //     returns (uint256, uint256, uint256, uint256)
-    // {
-    //     uint256 pt1zx = 1;
-    //     if (pt1xx == 0 && pt1xy == 0 && pt1yx == 0 && pt1yy == 0) {
-    //         pt1xx = 1;
-    //         pt1yx = 1;
-    //         pt1zx = 0;
-    //     } else {
-    //         assert(_isOnCurve(pt1xx, pt1xy, pt1yx, pt1yy));
-    //     }
+    /**
+     * @notice Multiply a twist point by a scalar
+     * @param s     Scalar to multiply by
+     * @param pt1xx Coefficient 1 of x
+     * @param pt1xy Coefficient 2 of x
+     * @param pt1yx Coefficient 1 of y
+     * @param pt1yy Coefficient 2 of y
+     * @return (pt2xx, pt2xy, pt2yx, pt2yy)
+     */
+    function ECTwistMul(uint256 s, uint256 pt1xx, uint256 pt1xy, uint256 pt1yx, uint256 pt1yy)
+        public
+        view
+        returns (uint256, uint256, uint256, uint256)
+    {
+        uint256 pt1zx = 1;
+        if (pt1xx == 0 && pt1xy == 0 && pt1yx == 0 && pt1yy == 0) {
+            pt1xx = 1;
+            pt1yx = 1;
+            pt1zx = 0;
+        } else {
+            assert(_isOnCurve(pt1xx, pt1xy, pt1yx, pt1yy));
+        }
 
-    //     uint256[6] memory pt2 = _ECTwistMulJacobian(s, pt1xx, pt1xy, pt1yx, pt1yy, pt1zx, 0);
+        uint256[6] memory pt2 = _ECTwistMulJacobian(s, pt1xx, pt1xy, pt1yx, pt1yy, pt1zx, 0);
 
-    //     return _fromJacobian(pt2[PTXX], pt2[PTXY], pt2[PTYX], pt2[PTYY], pt2[PTZX], pt2[PTZY]);
-    // }
+        return _fromJacobian(pt2[PTXX], pt2[PTXY], pt2[PTYX], pt2[PTYY], pt2[PTZX], pt2[PTZY]);
+    }
 
     /**
      * @notice Get the field modulus
