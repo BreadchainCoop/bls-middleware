@@ -11,6 +11,8 @@ import {IRegistryCoordinator} from "@eigenlayer-middleware/src/interfaces/IRegis
 import {RegistryCoordinator} from "@eigenlayer-middleware/src/RegistryCoordinator.sol";
 import {BN256G2} from "src/libraries/BN256G2.sol";
 import {IAVSDirectory} from "@eigenlayer/contracts/interfaces/IAVSDirectory.sol";
+import {stdJson} from "forge-std/StdJson.sol";
+
 
 // Mainnet
 // DELEGATION_MANAGER_ADDRESS=0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A
@@ -31,6 +33,8 @@ import {IAVSDirectory} from "@eigenlayer/contracts/interfaces/IAVSDirectory.sol"
 
 contract RegisterOperator is Script {
     using BN254 for BN254.G1Point;
+    using stdJson for string;
+
 
     // Core contracts
     address constant DELEGATION_MANAGER_ADDRESS_HOLESKY = 0xA44151489861Fe9e3055d95adC98FbD462B948e7;
@@ -54,11 +58,29 @@ contract RegisterOperator is Script {
         BN254.G2Point pk2;
     }
     function run() public {
+        string memory ecdsaPrivateKey = vm.readFile("~/.nodes/ecdsa_private_key.txt");
+        uint256 ecdsaPrivateKeyUint = ecdsaPrivateKey.readUint(".privateKey");
+        address operatorAddress = ecdsaPrivateKey.readAddress(".operator");
+        string memory blsPrivateKey = vm.readFile("~/.nodes/bls_private_key.txt");
+        uint256 blsPrivateKeyUint = blsPrivateKey.readUint(".privateKey");
+        BN254.G1Point memory pk1 = BN254.scalar_mul(BN254.generatorG1(), blsPrivateKeyUint);
+        BN254.G2Point memory g2 = BN254.generatorG2();
+        BN254.G2Point memory pk2;
+        (pk2.X[1], pk2.X[0], pk2.Y[1], pk2.Y[0]) = BN256G2.ECTwistMul(blsPrivateKeyUint, g2.X[1], g2.X[0], g2.Y[1], g2.Y[0]);
+
+        // ensure correct encoding by checking pairing
+        bool result = BN254.pairing(pk1, BN254.negGeneratorG2(), BN254.generatorG1(), pk2);
+        require(result, "Pairing check on BLS key generation failed");
         Operator memory operator = Operator({
-            operator: makeAddr("operator"),
-            ecdsaPrivateKey: 1,
-            blsPrivateKey: 2,
+            operator: operatorAddress,
+            ecdsaPrivateKey: ecdsaPrivateKeyUint,
+            blsPrivateKey: blsPrivateKeyUint,
+            pk1: pk1,
+            pk2: pk2
         });
+        string memory json = vm.readFile("~/.nodes/avs_deploy.json");
+        address registryCoordinator = json.readAddress(".registryCoordinator");
+
         registerOperator(IRegistryCoordinator(registryCoordinatorMimicOwner), OPACTIY_AVS_ADDRESS_HOLESKY, operator);
     }
     function registerOperator(IRegistryCoordinator registryCoordinator, address avs, Operator memory operator)
