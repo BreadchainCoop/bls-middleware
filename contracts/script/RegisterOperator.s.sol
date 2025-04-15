@@ -58,6 +58,7 @@ contract RegisterOperator is Script {
         BN254.G2Point pk2;
     }
     function run() public {
+        vm.startBroadcast();
         string memory ecdsaPrivateKey = vm.readFile("~/.nodes/ecdsa_private_key.txt");
         uint256 ecdsaPrivateKeyUint = ecdsaPrivateKey.readUint(".privateKey");
         address operatorAddress = ecdsaPrivateKey.readAddress(".operator");
@@ -80,8 +81,9 @@ contract RegisterOperator is Script {
         });
         string memory json = vm.readFile("~/.nodes/avs_deploy.json");
         address registryCoordinator = json.readAddress(".registryCoordinator");
-
-        registerOperator(IRegistryCoordinator(registryCoordinatorMimicOwner), OPACTIY_AVS_ADDRESS_HOLESKY, operator);
+        address serviceManager = json.readAddress(".serviceManager");
+        registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator);
+        vm.stopBroadcast();
     }
     function registerOperator(IRegistryCoordinator registryCoordinator, address avs, Operator memory operator)
         internal
