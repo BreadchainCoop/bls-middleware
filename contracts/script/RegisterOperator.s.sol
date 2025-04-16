@@ -58,11 +58,11 @@ contract RegisterOperator is Script {
         BN254.G2Point pk2;
     }
     function run() public {
-        vm.startBroadcast();
-        string memory ecdsaPrivateKey = vm.readFile("~/.nodes/operator_keys/private.ecdsa.json");
+        string memory ecdsaPrivateKey = vm.readFile("./private.ecdsa.json");
         uint256 ecdsaPrivateKeyUint = ecdsaPrivateKey.readUint(".privateKey");
+        vm.startBroadcast(ecdsaPrivateKeyUint);
         address operatorAddress = ecdsaPrivateKey.readAddress(".publicKey");
-        string memory blsPrivateKey = vm.readFile("~/.nodes/operator_keys/private.bls.json");
+        string memory blsPrivateKey = vm.readFile("./private.bls.json");
         uint256 blsPrivateKeyUint = blsPrivateKey.readUint(".privateKey");
         BN254.G1Point memory pk1 = BN254.scalar_mul(BN254.generatorG1(), blsPrivateKeyUint);
         BN254.G2Point memory g2 = BN254.generatorG2();
@@ -79,9 +79,9 @@ contract RegisterOperator is Script {
             pk1: pk1,
             pk2: pk2
         });
-        string memory json = vm.readFile("~/.nodes/avs_deploy.json");
-        address registryCoordinator = json.readAddress(".registryCoordinator");
-        address serviceManager = json.readAddress(".serviceManager");
+        string memory json = vm.readFile("./avs_deploy.json");
+        address registryCoordinator = json.readAddress(".addresses.registryCoordinator");
+        address serviceManager = json.readAddress(".addresses.IncredibleSquaringServiceManager");
         registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator);
         vm.stopBroadcast();
     }
@@ -103,7 +103,6 @@ contract RegisterOperator is Script {
         ISignatureUtilsMixin.SignatureWithSaltAndExpiry memory operatorSignature =
             _newOperatorRegistrationSignature(operator, avs, bytes32(0), block.timestamp + 1 days);
 
-        vm.prank(operator.operator);
         RegistryCoordinator(address(registryCoordinator)).registerOperator(
             quorumNumbers, socket, params, operatorSignature
         );
