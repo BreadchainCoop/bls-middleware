@@ -15,5 +15,14 @@ remappings = [
     "forge-std/=lib/forge-std/src/",
 ]
 
+# Additional compiler profiles
+additional_compiler_profiles = [
+    { name = "optimized", optimizer = true, optimizer_runs = 200 }
+]
+
+# Compilation restrictions
+compilation_restrictions = [
+    { paths = "script/IncredibleSquaringDeployer.s.sol", profile = "optimized" }
+]
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
