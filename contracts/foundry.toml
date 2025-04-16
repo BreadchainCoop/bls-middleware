@@ -24,5 +24,3 @@ additional_compiler_profiles = [
 compilation_restrictions = [
     { paths = "script/IncredibleSquaringDeployer.s.sol", profile = "optimized" }
 ]
-
-# See more config options https://github.com/foundry-rs/foundry/tree/master/config
