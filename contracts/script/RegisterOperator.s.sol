@@ -4,12 +4,12 @@ pragma solidity ^0.8.12;
 import {Test, console} from "forge-std/Test.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 import {Script} from "forge-std/Script.sol";
-import {ISignatureUtilsMixin} from "@eigenlayer/contracts/interfaces/ISignatureUtilsMixin.sol";
-import {IBLSApkRegistry} from "@eigenlayer-middleware/src/interfaces/IBLSApkRegistry.sol";
+import {ISignatureUtilsMixin,ISignatureUtilsMixinTypes} from "@eigenlayer/contracts/interfaces/ISignatureUtilsMixin.sol";
+import {IBLSApkRegistryTypes} from "@eigenlayer-middleware/src/interfaces/IBLSApkRegistry.sol";
 import {BN254} from "@eigenlayer-middleware/src/libraries/BN254.sol";
 import {IRegistryCoordinator} from "@eigenlayer-middleware/src/interfaces/IRegistryCoordinator.sol";
 import {RegistryCoordinator} from "@eigenlayer-middleware/src/RegistryCoordinator.sol";
-import {BN256G2} from "src/libraries/BN256G2.sol";
+import {BN256G2} from "../src/libraries/BN256G2.sol";
 import {IAVSDirectory} from "@eigenlayer/contracts/interfaces/IAVSDirectory.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
@@ -94,13 +94,13 @@ contract RegisterOperator is Script {
         BN254.G1Point memory h = registryCoordinator.pubkeyRegistrationMessageHash(operator.operator);
         BN254.G1Point memory sig = BN254.scalar_mul(h, operator.blsPrivateKey);
 
-        IBLSApkRegistry.PubkeyRegistrationParams memory params = IBLSApkRegistry.PubkeyRegistrationParams({
+        IBLSApkRegistryTypes.PubkeyRegistrationParams memory params = IBLSApkRegistryTypes.PubkeyRegistrationParams({
             pubkeyG1: operator.pk1,
             pubkeyG2: operator.pk2,
             pubkeyRegistrationSignature: sig
         });
 
-        ISignatureUtils.SignatureWithSaltAndExpiry memory operatorSignature =
+        ISignatureUtilsMixin.SignatureWithSaltAndExpiry memory operatorSignature =
             _newOperatorRegistrationSignature(operator, avs, bytes32(0), block.timestamp + 1 days);
 
         vm.prank(operator.operator);
@@ -112,13 +112,13 @@ contract RegisterOperator is Script {
     function _newOperatorRegistrationSignature(Operator memory operator, address avs, bytes32 salt, uint256 expiry)
         internal
         view
-        returns (ISignatureUtils.SignatureWithSaltAndExpiry memory)
+        returns (ISignatureUtilsMixinTypes.SignatureWithSaltAndExpiry memory)
     {
         bytes32 operatorRegistrationDigestHash = IAVSDirectory(AVS_DIRECTORY_ADDRESS_HOLESKY)
             .calculateOperatorAVSRegistrationDigestHash(operator.operator, avs, salt, expiry);
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(operator.ecdsaPrivateKey, operatorRegistrationDigestHash);
         bytes memory signature = abi.encodePacked(r, s, v);
-        return ISignatureUtils.SignatureWithSaltAndExpiry({signature: signature, salt: salt, expiry: expiry});
+        return ISignatureUtilsMixinTypes.SignatureWithSaltAndExpiry({signature: signature, salt: salt, expiry: expiry});
     }
 }
