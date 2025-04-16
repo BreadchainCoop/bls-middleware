@@ -59,10 +59,10 @@ contract RegisterOperator is Script {
     }
     function run() public {
         vm.startBroadcast();
-        string memory ecdsaPrivateKey = vm.readFile("~/.nodes/ecdsa_private_key.txt");
+        string memory ecdsaPrivateKey = vm.readFile("~/.nodes/operator_keys/private.ecdsa.json");
         uint256 ecdsaPrivateKeyUint = ecdsaPrivateKey.readUint(".privateKey");
-        address operatorAddress = ecdsaPrivateKey.readAddress(".operator");
-        string memory blsPrivateKey = vm.readFile("~/.nodes/bls_private_key.txt");
+        address operatorAddress = ecdsaPrivateKey.readAddress(".publicKey");
+        string memory blsPrivateKey = vm.readFile("~/.nodes/operator_keys/private.bls.json");
         uint256 blsPrivateKeyUint = blsPrivateKey.readUint(".privateKey");
         BN254.G1Point memory pk1 = BN254.scalar_mul(BN254.generatorG1(), blsPrivateKeyUint);
         BN254.G2Point memory g2 = BN254.generatorG2();
