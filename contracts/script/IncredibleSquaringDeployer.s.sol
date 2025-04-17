@@ -111,7 +111,7 @@ contract IncredibleSquaringDeployer is Script {
         proxyAdmin = UpgradeableProxyLib.deployProxyAdmin();
         require(address(incredibleSquaringStrategy) != address(0));
         incrediblSquaringDeployment = IncredibleSquaringDeploymentLib.deployContracts(
-            proxyAdmin, configData, 0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3, isConfig, msg.sender
+            proxyAdmin, configData, 0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3, isConfig, deployer
         );
         console.log("instantSlasher", incrediblSquaringDeployment.slasher);
 
