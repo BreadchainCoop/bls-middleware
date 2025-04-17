@@ -9,6 +9,7 @@ import {Vm} from "forge-std/Vm.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {IAVSDirectory} from "@eigenlayer/contracts/interfaces/IAVSDirectory.sol";
 import {ISocketRegistry, SocketRegistry} from "@eigenlayer-middleware/src/SocketRegistry.sol";
+import {RegistryCoordinator} from "@eigenlayer-middleware/src/RegistryCoordinator.sol";
 import {
     ISlashingRegistryCoordinator,
     ISlashingRegistryCoordinatorTypes
@@ -239,7 +240,7 @@ library IncredibleSquaringDeploymentLib {
         address socketRegistryImpl =
             address(new SocketRegistry(ISlashingRegistryCoordinator(result.slashingRegistryCoordinator)));
         UpgradeableProxyLib.upgrade(result.socketRegistry, socketRegistryImpl);
-
+        RegistryCoordinator(result.slashingRegistryCoordinator).unpause(0);
         verify_deployment(result);
 
         return result;
