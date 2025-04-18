@@ -9,10 +9,11 @@ import {IBLSApkRegistryTypes} from "@eigenlayer-middleware/src/interfaces/IBLSAp
 import {BN254} from "@eigenlayer-middleware/src/libraries/BN254.sol";
 import {IRegistryCoordinator} from "@eigenlayer-middleware/src/interfaces/IRegistryCoordinator.sol";
 import {RegistryCoordinator} from "@eigenlayer-middleware/src/RegistryCoordinator.sol";
+import {SlashingRegistryCoordinator} from "@eigenlayer-middleware/src/SlashingRegistryCoordinator.sol";
 import {BN256G2} from "../src/libraries/BN256G2.sol";
 import {IAVSDirectory} from "@eigenlayer/contracts/interfaces/IAVSDirectory.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-
+import {ISlashingRegistryCoordinator, ISlashingRegistryCoordinatorTypes} from "@eigenlayer-middleware/src/interfaces/ISlashingRegistryCoordinator.sol";
 
 // Mainnet
 // DELEGATION_MANAGER_ADDRESS=0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A
@@ -99,12 +100,18 @@ contract RegisterOperator is Script {
             pubkeyG2: operator.pk2,
             pubkeyRegistrationSignature: sig
         });
+        ISlashingRegistryCoordinatorTypes.RegistrationType registrationType = ISlashingRegistryCoordinatorTypes.RegistrationType.NORMAL;
+        bytes memory encodedParams = abi.encode(registrationType, socket, params);
+        uint32[] memory operatorSetIds = new uint32[](1);
+        operatorSetIds[0] = 0;
+        // ISignatureUtilsMixin.SignatureWithSaltAndExpiry memory operatorSignature =
+        //     _newOperatorRegistrationSignature(operator, avs, bytes32(0), block.timestamp + 1 days);
 
-        ISignatureUtilsMixin.SignatureWithSaltAndExpiry memory operatorSignature =
-            _newOperatorRegistrationSignature(operator, avs, bytes32(0), block.timestamp + 1 days);
-
-        RegistryCoordinator(address(registryCoordinator)).registerOperator(
-            quorumNumbers, socket, params, operatorSignature
+        ISlashingRegistryCoordinator(registryCoordinator).registerOperator(
+            operator.operator,
+            avs,
+            operatorSetIds,
+            encodedParams
         );
     }
 

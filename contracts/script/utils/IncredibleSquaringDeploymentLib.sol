@@ -241,6 +241,17 @@ library IncredibleSquaringDeploymentLib {
             address(new SocketRegistry(ISlashingRegistryCoordinator(result.slashingRegistryCoordinator)));
         UpgradeableProxyLib.upgrade(result.socketRegistry, socketRegistryImpl);
         RegistryCoordinator(result.slashingRegistryCoordinator).unpause(0);
+        IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray = new IStakeRegistryTypes.StrategyParams[](1);
+        strategyParamsArray[0] = IStakeRegistryTypes.StrategyParams({
+            strategy: IStrategy(0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3),
+            multiplier: 1 ether
+        });
+        ISlashingRegistryCoordinator(result.slashingRegistryCoordinator).createSlashableStakeQuorum(
+            quorumsOperatorSetParams[0],
+            1, //TODO fix this to a real min
+            strategyParamsArray,
+            0
+        );
         verify_deployment(result);
 
         return result;
