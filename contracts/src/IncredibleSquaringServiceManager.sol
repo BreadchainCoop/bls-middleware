@@ -50,6 +50,7 @@ contract IncredibleSquaringServiceManager is ServiceManagerBase {
 
     function initialize(address initialOwner, address rewardsInitiator) external initializer {
         __ServiceManagerBase_init(initialOwner, rewardsInitiator);
+        _allocationManager.updateAVSMetadataURI(address(this), "mock metadata URI");
         _permissionController.setAppointee(address(this), address(_registryCoordinator), address(_allocationManager), IAllocationManager.createOperatorSets.selector);
     }
 }
