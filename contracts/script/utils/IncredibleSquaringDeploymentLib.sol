@@ -130,6 +130,10 @@ library IncredibleSquaringDeploymentLib {
                 result.incredibleSquaringTaskManager
             )
         );
+        address[] memory pausers = new address[](2);
+        pausers[0] = admin;
+        pausers[1] = admin;
+        PauserRegistry pausercontract = new PauserRegistry(pausers, admin);
 
         address slashingRegistryCoordinatorImpl = address(
             new SlashingRegistryCoordinator(
@@ -138,15 +142,11 @@ library IncredibleSquaringDeploymentLib {
                 IIndexRegistry(result.indexRegistry),
                 ISocketRegistry(result.socketRegistry),
                 IAllocationManager(core.allocationManager),
-                IPauserRegistry(coredata.pauserRegistry),
+                IPauserRegistry(address(pausercontract)),
                 MIDDLEWARE_VERSION
             )
         );
 
-        address[] memory pausers = new address[](2);
-        pausers[0] = admin;
-        pausers[1] = admin;
-        PauserRegistry pausercontract = new PauserRegistry(pausers, admin);
 
         IStrategy[] memory deployedStrategyArray = new IStrategy[](1);
         deployedStrategyArray[0] = IStrategy(strategy);
