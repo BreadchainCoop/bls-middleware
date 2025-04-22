@@ -46,12 +46,10 @@ contract IncredibleSquaringServiceManager is ServiceManagerBase {
         )
     {
         incredibleSquaringTaskManager = _incredibleSquaringTaskManager;
-        // _permissionController.addPendingAdmin(address(this), address(this));
-        // _permissionController.acceptAdmin(address(this));
-        _permissionController.setAppointee(address(this), address(_slashingRegistryCoordinator), address(allocationManager), IAllocationManager.createOperatorSets.selector);
     }
 
     function initialize(address initialOwner, address rewardsInitiator) external initializer {
         __ServiceManagerBase_init(initialOwner, rewardsInitiator);
+        _permissionController.setAppointee(address(this), address(_registryCoordinator), address(_allocationManager), IAllocationManager.createOperatorSets.selector);
     }
 }
