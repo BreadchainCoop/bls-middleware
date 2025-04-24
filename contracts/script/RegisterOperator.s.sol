@@ -14,6 +14,7 @@ import {BN256G2} from "../src/libraries/BN256G2.sol";
 import {IAVSDirectory} from "@eigenlayer/contracts/interfaces/IAVSDirectory.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {ISlashingRegistryCoordinator, ISlashingRegistryCoordinatorTypes} from "@eigenlayer-middleware/src/interfaces/ISlashingRegistryCoordinator.sol";
+import {IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts/interfaces/IAllocationManager.sol";
 
 // Mainnet
 // DELEGATION_MANAGER_ADDRESS=0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A
@@ -83,7 +84,7 @@ contract RegisterOperator is Script {
         string memory json = vm.readFile("./avs_deploy.json");
         address registryCoordinator = json.readAddress(".addresses.registryCoordinator");
         address serviceManager = json.readAddress(".addresses.IncredibleSquaringServiceManager");
-        registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator);
+        registerOperator(IRegistryCoordinator(registryCoordinator), registryCoordinator, operator);
         vm.stopBroadcast();
     }
     function registerOperator(IRegistryCoordinator registryCoordinator, address avs, Operator memory operator)
@@ -104,14 +105,16 @@ contract RegisterOperator is Script {
         bytes memory encodedParams = abi.encode(registrationType, socket, params);
         uint32[] memory operatorSetIds = new uint32[](1);
         operatorSetIds[0] = 0;
-        // ISignatureUtilsMixin.SignatureWithSaltAndExpiry memory operatorSignature =
-        //     _newOperatorRegistrationSignature(operator, avs, bytes32(0), block.timestamp + 1 days);
 
-        ISlashingRegistryCoordinator(registryCoordinator).registerOperator(
+        IAllocationManagerTypes.RegisterParams memory registerParams = IAllocationManagerTypes.RegisterParams({
+            avs: avs,
+            operatorSetIds: operatorSetIds,
+            data: encodedParams
+        });
+
+        IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
             operator.operator,
-            avs,
-            operatorSetIds,
-            encodedParams
+            registerParams
         );
     }
 
