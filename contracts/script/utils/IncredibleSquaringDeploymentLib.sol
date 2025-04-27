@@ -32,7 +32,7 @@ import {IndexRegistry} from "@eigenlayer-middleware/src/IndexRegistry.sol";
 import {InstantSlasher} from "@eigenlayer-middleware/src/slashers/InstantSlasher.sol";
 import {StakeRegistry} from "@eigenlayer-middleware/src/StakeRegistry.sol";
 // import {SocketRegistry} from "@eigenlayer-middleware/src/SocketRegistry.sol"; // todo: socket registry not available
-import {IAllocationManager} from "@eigenlayer/contracts/interfaces/IAllocationManager.sol";
+import {IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts/interfaces/IAllocationManager.sol";
 import {IStrategy} from "@eigenlayer/contracts/interfaces/IStrategyManager.sol";
 import {CoreDeploymentLib} from "./CoreDeploymentLib.sol";
 
@@ -241,6 +241,20 @@ library IncredibleSquaringDeploymentLib {
             address(new SocketRegistry(ISlashingRegistryCoordinator(result.slashingRegistryCoordinator)));
         UpgradeableProxyLib.upgrade(result.socketRegistry, socketRegistryImpl);
         RegistryCoordinator(result.slashingRegistryCoordinator).unpause(0);
+
+        IAllocationManagerTypes.CreateSetParams[] memory createSetParams = new IAllocationManagerTypes.CreateSetParams[](1);
+        IStrategy[] memory strategies = new IStrategy[](deployedStrategyArray.length);
+        for (uint256 i = 0; i < deployedStrategyArray.length; i++) {
+            strategies[i] = deployedStrategyArray[i];
+        }
+        createSetParams[0] = IAllocationManagerTypes.CreateSetParams({
+            operatorSetId: 0,
+            strategies: strategies
+        });
+        IAllocationManager(core.allocationManager).createOperatorSets(
+            result.incredibleSquaringServiceManager,
+            createSetParams
+        );
         // IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray = new IStakeRegistryTypes.StrategyParams[](1);
         // strategyParamsArray[0] = IStakeRegistryTypes.StrategyParams({
         //     strategy: IStrategy(0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3),
