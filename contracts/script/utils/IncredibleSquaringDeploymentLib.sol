@@ -253,15 +253,6 @@ library IncredibleSquaringDeploymentLib {
         // Need to eventually refactor to be more modular (Lib does not depend on who calls it and how)
         IncredibleSquaringServiceManager(result.incredibleSquaringServiceManager).addPendingAdmin(admin);
         IPermissionController(core.permissionController).acceptAdmin(result.incredibleSquaringServiceManager);
-
-        createSetParams[0] = IAllocationManagerTypes.CreateSetParams({
-            operatorSetId: 0,
-            strategies: strategies
-        });
-        IAllocationManager(core.allocationManager).createOperatorSets(
-            result.incredibleSquaringServiceManager,
-            createSetParams
-        );
         // IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray = new IStakeRegistryTypes.StrategyParams[](1);
         // strategyParamsArray[0] = IStakeRegistryTypes.StrategyParams({
         //     strategy: IStrategy(0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3),
