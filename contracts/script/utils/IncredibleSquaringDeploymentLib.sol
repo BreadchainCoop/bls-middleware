@@ -3,7 +3,7 @@ pragma solidity ^0.8.12;
 
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
-import {Script} from "forge-std/Script.sol";
+import {Script, console} from "forge-std/Script.sol";
 import {console2} from "forge-std/Test.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {stdJson} from "forge-std/StdJson.sol";
@@ -252,6 +252,10 @@ library IncredibleSquaringDeploymentLib {
         // NOTE: admin must be the deployer (the broadcasting address) for this to work.
         // Need to eventually refactor to be more modular (Lib does not depend on who calls it and how)
         IncredibleSquaringServiceManager(result.incredibleSquaringServiceManager).addPendingAdmin(admin);
+        console.log("Added pending admin to: ");
+        console.log(result.incredibleSquaringServiceManager);
+        console.log("Admin: ");
+        console.log(admin);
         IPermissionController(core.permissionController).acceptAdmin(result.incredibleSquaringServiceManager);
         // IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray = new IStakeRegistryTypes.StrategyParams[](1);
         // strategyParamsArray[0] = IStakeRegistryTypes.StrategyParams({
