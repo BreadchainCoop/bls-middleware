@@ -251,12 +251,13 @@ library IncredibleSquaringDeploymentLib {
         // make deployer an admin of the service manager
         // NOTE: admin must be the deployer (the broadcasting address) for this to work.
         // Need to eventually refactor to be more modular (Lib does not depend on who calls it and how)
-        IncredibleSquaringServiceManager(result.incredibleSquaringServiceManager).addPendingAdmin(admin);
-        console.log("Added pending admin to: ");
-        console.log(result.incredibleSquaringServiceManager);
-        console.log("Admin: ");
-        console.log(admin);
-        IPermissionController(core.permissionController).acceptAdmin(result.incredibleSquaringServiceManager);
+        // IncredibleSquaringServiceManager(result.incredibleSquaringServiceManager).addPendingAdmin(admin);
+        // console.log("Added pending admin to: ");
+        // console.log(result.incredibleSquaringServiceManager);
+        // console.log("Admin: ");
+        // console.log(admin);
+        // IPermissionController(core.permissionController).acceptAdmin(result.incredibleSquaringServiceManager);
+
         // IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray = new IStakeRegistryTypes.StrategyParams[](1);
         // strategyParamsArray[0] = IStakeRegistryTypes.StrategyParams({
         //     strategy: IStrategy(0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3),
