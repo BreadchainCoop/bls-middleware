@@ -247,6 +247,13 @@ library IncredibleSquaringDeploymentLib {
         for (uint256 i = 0; i < deployedStrategyArray.length; i++) {
             strategies[i] = deployedStrategyArray[i];
         }
+
+        // make deployer an admin of the service manager
+        // NOTE: admin must be the deployer (the broadcasting address) for this to work.
+        // Need to eventually refactor to be more modular (Lib does not depend on who calls it and how)
+        IncredibleSquaringServiceManager(result.incredibleSquaringServiceManager).addPendingAdmin(admin);
+        IPermissionController(core.permissionController).acceptAdmin(result.incredibleSquaringServiceManager);
+
         createSetParams[0] = IAllocationManagerTypes.CreateSetParams({
             operatorSetId: 0,
             strategies: strategies
@@ -266,13 +273,6 @@ library IncredibleSquaringDeploymentLib {
         //     strategyParamsArray,
         //     0
         // );
-
-        // make deployer an admin of the service manager
-        // NOTE: admin must be the deployer (the broadcasting address) for this to work.
-        // Need to eventually refactor to be more modular (Lib does not depend on who calls it and how)
-        IncredibleSquaringServiceManager(result.incredibleSquaringServiceManager).addPendingAdmin(admin);
-        IPermissionController(core.permissionController).acceptAdmin(result.incredibleSquaringServiceManager);
-
         verify_deployment(result);
 
         return result;
