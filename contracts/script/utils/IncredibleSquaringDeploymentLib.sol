@@ -266,6 +266,13 @@ library IncredibleSquaringDeploymentLib {
         //     strategyParamsArray,
         //     0
         // );
+
+        // make deployer an admin of the service manager
+        // NOTE: admin must be the deployer (the broadcasting address) for this to work.
+        // Need to eventually refactor to be more modular (Lib does not depend on who calls it and how)
+        IncredibleSquaringServiceManager(result.incredibleSquaringServiceManager).addPendingAdmin(admin);
+        IPermissionController(core.permissionController).acceptAdmin(result.incredibleSquaringServiceManager);
+
         verify_deployment(result);
 
         return result;
