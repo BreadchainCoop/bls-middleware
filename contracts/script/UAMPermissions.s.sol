@@ -29,10 +29,6 @@ contract UAMPermissions is Script {
 
     function run() external {
         vm.startBroadcast(deployer);
-        console.log("UAM Permissions running for: ");
-        console.log(deploymentData.incredibleSquaringServiceManager);
-        console.log("Admin: ");
-        console.log(deployer);
         IServiceManager serviceManager = IServiceManager(deploymentData.incredibleSquaringServiceManager);
         serviceManager.setAppointee(deployer, coreData.allocationManager, AllocationManager.setAVSRegistrar.selector);
 
@@ -53,6 +49,10 @@ contract UAMPermissions is Script {
 
         serviceManager.setAppointee(
             deployer, coreData.allocationManager, AllocationManager.updateAVSMetadataURI.selector
+        );
+
+        serviceManager.setAppointee(
+            deployer, coreData.allocationManager, AllocationManager.createOperatorSets.selector
         );
 
         vm.stopBroadcast();
