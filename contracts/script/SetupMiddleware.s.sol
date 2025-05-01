@@ -25,6 +25,9 @@ contract SetupMiddleware is Script {
         address operatorSetStrategy = 0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3;
         string memory metadataURI = "metadataURI";
 
+        IAllocationManager(coreData.allocationManager).updateAVSMetadataURI(
+            deploymentData.incredibleSquaringServiceManager, metadataURI
+        );
         IStrategy[] memory strategies = new IStrategy[](1);
         strategies[0] = IStrategy(operatorSetStrategy);
         IAllocationManagerTypes.CreateSetParams[] memory createSetParams = new IAllocationManagerTypes.CreateSetParams[](1);
@@ -37,9 +40,6 @@ contract SetupMiddleware is Script {
             createSetParams
         );
 
-        IAllocationManager(coreData.allocationManager).updateAVSMetadataURI(
-            deploymentData.incredibleSquaringServiceManager, metadataURI
-        );
 
         vm.stopBroadcast();
     }
