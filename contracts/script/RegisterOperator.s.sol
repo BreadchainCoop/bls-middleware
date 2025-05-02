@@ -132,6 +132,8 @@ contract RegisterOperator is Script {
         });
         IAllocationManager(registryCoordinator.allocationManager()).modifyAllocations(operator.operator, allocationMods);
 
+        vm.roll(block.number + 1); // Workaround for testnet, txs can't be in the same block
+
         IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
             operator.operator,
             registerParams
