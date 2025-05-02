@@ -15,6 +15,8 @@ import {IAVSDirectory} from "@eigenlayer/contracts/interfaces/IAVSDirectory.sol"
 import {stdJson} from "forge-std/StdJson.sol";
 import {ISlashingRegistryCoordinator, ISlashingRegistryCoordinatorTypes} from "@eigenlayer-middleware/src/interfaces/ISlashingRegistryCoordinator.sol";
 import {IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts/interfaces/IAllocationManager.sol";
+import {IStrategy} from "@eigenlayer/contracts/interfaces/IStrategy.sol";
+import {OperatorSet} from "@eigenlayer/contracts/libraries/OperatorSetLib.sol";
 
 // Mainnet
 // DELEGATION_MANAGER_ADDRESS=0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A
@@ -111,6 +113,24 @@ contract RegisterOperator is Script {
             operatorSetIds: operatorSetIds,
             data: encodedParams
         });
+
+        IStrategy[] memory strategies = new IStrategy[](1);
+        strategies[0] = IStrategy(LST_STRATEGY_ADDRESS_HOLESKY);
+        uint64[] memory newMagnitudes = new uint64[](1);
+        // Ref: https://github.com/Layr-Labs/eigenlayer-contracts/blob/734f7361884d24fe51961b342e93dde1290961d0/src/contracts/libraries/SlashingLib.sol#L12
+        // 1e18 is 100%
+        newMagnitudes[0] = 1e18;
+
+        IAllocationManagerTypes.AllocateParams[] memory allocationMods = new IAllocationManagerTypes.AllocateParams[](1);
+        allocationMods[0] = IAllocationManagerTypes.AllocateParams({
+            operatorSet: OperatorSet({
+                avs: avs,
+                id: 0
+            }),
+            strategies: strategies,
+            newMagnitudes: newMagnitudes
+        });
+        IAllocationManager(registryCoordinator.allocationManager()).modifyAllocations(operator.operator, allocationMods);
 
         IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
             operator.operator,
