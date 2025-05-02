@@ -6,6 +6,11 @@ import {IncredibleSquaringDeploymentLib} from "../script/utils/IncredibleSquarin
 import {IStrategy} from "@eigenlayer/contracts/interfaces/IStrategyManager.sol";
 import {CoreDeploymentLib} from "./utils/CoreDeploymentLib.sol";
 import {AllocationManager, IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts/core/AllocationManager.sol";
+import {
+    ISlashingRegistryCoordinator,
+    ISlashingRegistryCoordinatorTypes
+} from "@eigenlayer-middleware/src/interfaces/ISlashingRegistryCoordinator.sol";
+import {IStakeRegistryTypes} from "@eigenlayer-middleware/src/StakeRegistry.sol";
 
 contract SetupMiddleware is Script {
     address internal deployer;
@@ -30,16 +35,33 @@ contract SetupMiddleware is Script {
         );
         IStrategy[] memory strategies = new IStrategy[](1);
         strategies[0] = IStrategy(operatorSetStrategy);
-        IAllocationManagerTypes.CreateSetParams[] memory createSetParams = new IAllocationManagerTypes.CreateSetParams[](1);
-        createSetParams[0] = IAllocationManagerTypes.CreateSetParams({
-            operatorSetId: 1,
-            strategies: strategies
-        });
-        IAllocationManager(coreData.allocationManager).createOperatorSets(
-            deploymentData.incredibleSquaringServiceManager,
-            createSetParams
-        );
+        // IAllocationManagerTypes.CreateSetParams[] memory createSetParams = new IAllocationManagerTypes.CreateSetParams[](1);
+        // createSetParams[0] = IAllocationManagerTypes.CreateSetParams({
+        //     operatorSetId: 1,
+        //     strategies: strategies
+        // });
+        // IAllocationManager(coreData.allocationManager).createOperatorSets(
+        //     deploymentData.incredibleSquaringServiceManager,
+        //     createSetParams
+        // );
 
+        IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray = new IStakeRegistryTypes.StrategyParams[](strategies.length);
+        for (uint256 i = 0; i < strategies.length; i++) {
+            strategyParamsArray[i] = IStakeRegistryTypes.StrategyParams({
+                strategy: strategies[i],
+                multiplier: 1 ether  // TODO: needs oracle
+            });
+        }
+        ISlashingRegistryCoordinator(deploymentData.slashingRegistryCoordinator).createSlashableStakeQuorum(
+            ISlashingRegistryCoordinatorTypes.OperatorSetParam({
+                maxOperatorCount: 32,
+                kickBIPsOfOperatorStake: 10000,  // TODO: chosen arbitrarily
+                kickBIPsOfTotalStake: 100  // TODO: chosen arbitrarily
+            }),
+            1, //TODO fix this to a real min
+            strategyParamsArray,
+            0
+        );
 
         vm.stopBroadcast();
     }

@@ -52,7 +52,7 @@ contract UAMPermissions is Script {
         );
 
         serviceManager.setAppointee(
-            deployer, coreData.allocationManager, AllocationManager.createOperatorSets.selector
+            deploymentData.slashingRegistryCoordinator, coreData.allocationManager, AllocationManager.createOperatorSets.selector
         );
 
         vm.stopBroadcast();
