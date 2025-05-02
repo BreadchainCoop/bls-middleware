@@ -104,7 +104,7 @@ contract RegisterOperator is Script {
         ISlashingRegistryCoordinatorTypes.RegistrationType registrationType = ISlashingRegistryCoordinatorTypes.RegistrationType.NORMAL;
         bytes memory encodedParams = abi.encode(registrationType, socket, params);
         uint32[] memory operatorSetIds = new uint32[](1);
-        operatorSetIds[0] = 1;
+        operatorSetIds[0] = 0;
 
         IAllocationManagerTypes.RegisterParams memory registerParams = IAllocationManagerTypes.RegisterParams({
             avs: avs,
