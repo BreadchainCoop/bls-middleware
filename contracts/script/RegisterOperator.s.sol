@@ -84,7 +84,7 @@ contract RegisterOperator is Script {
         string memory json = vm.readFile("./avs_deploy.json");
         address registryCoordinator = json.readAddress(".addresses.registryCoordinator");
         address serviceManager = json.readAddress(".addresses.IncredibleSquaringServiceManager");
-        registerOperator(IRegistryCoordinator(registryCoordinator), registryCoordinator, operator);
+        registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator);
         vm.stopBroadcast();
     }
     function registerOperator(IRegistryCoordinator registryCoordinator, address avs, Operator memory operator)
