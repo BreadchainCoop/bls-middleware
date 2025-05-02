@@ -130,8 +130,12 @@ contract RegisterOperator is Script {
             strategies: strategies,
             newMagnitudes: newMagnitudes
         });
-        IAllocationManager(registryCoordinator.allocationManager()).modifyAllocations(operator.operator, allocationMods);
 
+        uint32 allocationDelay = 0;
+        IAllocationManager(registryCoordinator.allocationManager()).setAllocationDelay(operator.operator, allocationDelay);
+
+        IAllocationManager(registryCoordinator.allocationManager()).modifyAllocations(operator.operator, allocationMods);
+        
         IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
             operator.operator,
             registerParams
