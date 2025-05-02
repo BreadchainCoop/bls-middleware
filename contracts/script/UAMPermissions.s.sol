@@ -51,8 +51,6 @@ contract UAMPermissions is Script {
             deployer, coreData.allocationManager, AllocationManager.updateAVSMetadataURI.selector
         );
 
-        _allocationManager.updateAVSMetadataURI(deploymentData.incredibleSquaringServiceManager, "metadataURI");
-
         vm.stopBroadcast();
     }
 }
