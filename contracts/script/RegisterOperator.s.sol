@@ -130,11 +130,16 @@ contract RegisterOperator is Script {
             strategies: strategies,
             newMagnitudes: newMagnitudes
         });
-        IAllocationManager(registryCoordinator.allocationManager()).modifyAllocations(operator.operator, allocationMods);
+        IAllocationManager allocationManager = IAllocationManager(registryCoordinator.allocationManager());
+        allocationManager.setAllocationDelay(operator.operator, 0);
 
         vm.roll(block.number + 1); // Workaround for testnet, txs can't be in the same block
 
-        IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
+        allocationManager.modifyAllocations(operator.operator, allocationMods);
+
+        vm.roll(block.number + 1); // Workaround for testnet, txs can't be in the same block
+
+        allocationManager.registerForOperatorSets(
             operator.operator,
             registerParams
         );
