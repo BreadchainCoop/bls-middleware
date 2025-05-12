@@ -5,7 +5,11 @@ import {Script} from "forge-std/Script.sol";
 import {IncredibleSquaringDeploymentLib} from "../script/utils/IncredibleSquaringDeploymentLib.sol";
 import {IStrategy} from "@eigenlayer/contracts/interfaces/IStrategyManager.sol";
 import {CoreDeploymentLib} from "./utils/CoreDeploymentLib.sol";
-import {AllocationManager, IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts/core/AllocationManager.sol";
+import {
+    AllocationManager,
+    IAllocationManager,
+    IAllocationManagerTypes
+} from "@eigenlayer/contracts/core/AllocationManager.sol";
 import {
     ISlashingRegistryCoordinator,
     ISlashingRegistryCoordinatorTypes
@@ -17,12 +21,12 @@ contract SetupMiddleware is Script {
     IncredibleSquaringDeploymentLib.DeploymentData internal deploymentData;
     CoreDeploymentLib.DeploymentData internal coreData;
 
-    // Configuration struct to hold quorum parameters
+    // Configuration struct to hold quorum parameters with proper types
     struct QuorumConfig {
-        uint256 minimumStake;
-        uint256 maxOperatorCount;
-        uint256 kickBIPsOfOperatorStake;
-        uint256 kickBIPsOfTotalStake;
+        uint96 minimumStake;
+        uint32 maxOperatorCount;
+        uint16 kickBIPsOfOperatorStake;
+        uint16 kickBIPsOfTotalStake;
         string metadataURI;
     }
 
@@ -34,23 +38,29 @@ contract SetupMiddleware is Script {
     }
 
     /**
-     * @notice Reads quorum configuration from config.json
+     * @notice Reads quorum configuration from docker/eigenlayer/config.json
+     * @dev Minimum stake and other quorum parameters are configured in docker/eigenlayer/config.json.
+     *      To change the minimum stake, edit the "minimumStake" field in that file.
+     *      This allows for easy configuration without code changes.
      * @return config The quorum configuration parameters
      */
     function readQuorumConfig() internal view returns (QuorumConfig memory config) {
         string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "docker/eigenlayer/config.json");
+        string memory path = string.concat(root, "/docker/eigenlayer/config.json");
         string memory json = vm.readFile(path);
-        
-        config.minimumStake = vm.parseJsonUint(json, "$.quorum.minimumStake");
-        config.maxOperatorCount = vm.parseJsonUint(json, "$.quorum.maxOperatorCount");
-        config.kickBIPsOfOperatorStake = vm.parseJsonUint(json, "$.quorum.kickBIPsOfOperatorStake");
-        config.kickBIPsOfTotalStake = vm.parseJsonUint(json, "$.quorum.kickBIPsOfTotalStake");
+
+        // Cast JSON values to the appropriate types
+        config.minimumStake = uint96(vm.parseJsonUint(json, "$.quorum.minimumStake"));
+        config.maxOperatorCount = uint32(vm.parseJsonUint(json, "$.quorum.maxOperatorCount"));
+        config.kickBIPsOfOperatorStake = uint16(vm.parseJsonUint(json, "$.quorum.kickBIPsOfOperatorStake"));
+        config.kickBIPsOfTotalStake = uint16(vm.parseJsonUint(json, "$.quorum.kickBIPsOfTotalStake"));
         config.metadataURI = vm.parseJsonString(json, "$.metadata.uri");
     }
 
     function run() external {
         vm.startBroadcast(deployer);
+
+        QuorumConfig memory config = readQuorumConfig();
 
         address operatorSetStrategy = 0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3;
         string memory metadataURI = config.metadataURI;
@@ -61,16 +71,15 @@ contract SetupMiddleware is Script {
         IStrategy[] memory strategies = new IStrategy[](1);
         strategies[0] = IStrategy(operatorSetStrategy);
 
-        IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray = new IStakeRegistryTypes.StrategyParams[](strategies.length);
+        IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray =
+            new IStakeRegistryTypes.StrategyParams[](strategies.length);
         for (uint256 i = 0; i < strategies.length; i++) {
             strategyParamsArray[i] = IStakeRegistryTypes.StrategyParams({
                 strategy: strategies[i],
-                multiplier: 1 ether  // TODO: needs oracle
+                multiplier: 1 ether
             });
         }
 
-        QuorumConfig memory config = readQuorumConfig();
-        
         ISlashingRegistryCoordinator(deploymentData.slashingRegistryCoordinator).createSlashableStakeQuorum(
             ISlashingRegistryCoordinatorTypes.OperatorSetParam({
                 maxOperatorCount: config.maxOperatorCount,
