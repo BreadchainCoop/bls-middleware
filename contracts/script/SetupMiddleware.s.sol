@@ -17,6 +17,15 @@ contract SetupMiddleware is Script {
     IncredibleSquaringDeploymentLib.DeploymentData internal deploymentData;
     CoreDeploymentLib.DeploymentData internal coreData;
 
+    // Configuration struct to hold quorum parameters
+    struct QuorumConfig {
+        uint256 minimumStake;
+        uint256 maxOperatorCount;
+        uint256 kickBIPsOfOperatorStake;
+        uint256 kickBIPsOfTotalStake;
+        string metadataURI;
+    }
+
     function setUp() public virtual {
         deployer = vm.rememberKey(vm.envUint("PRIVATE_KEY"));
         vm.label(deployer, "Deployer");
@@ -24,11 +33,27 @@ contract SetupMiddleware is Script {
         coreData = CoreDeploymentLib.readDeploymentJson("script/deployments/core/", block.chainid);
     }
 
+    /**
+     * @notice Reads quorum configuration from config.json
+     * @return config The quorum configuration parameters
+     */
+    function readQuorumConfig() internal view returns (QuorumConfig memory config) {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, "docker/eigenlayer/config.json");
+        string memory json = vm.readFile(path);
+        
+        config.minimumStake = vm.parseJsonUint(json, "$.quorum.minimumStake");
+        config.maxOperatorCount = vm.parseJsonUint(json, "$.quorum.maxOperatorCount");
+        config.kickBIPsOfOperatorStake = vm.parseJsonUint(json, "$.quorum.kickBIPsOfOperatorStake");
+        config.kickBIPsOfTotalStake = vm.parseJsonUint(json, "$.quorum.kickBIPsOfTotalStake");
+        config.metadataURI = vm.parseJsonString(json, "$.metadata.uri");
+    }
+
     function run() external {
         vm.startBroadcast(deployer);
 
         address operatorSetStrategy = 0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3;
-        string memory metadataURI = "metadataURI";
+        string memory metadataURI = config.metadataURI;
 
         IAllocationManager(coreData.allocationManager).updateAVSMetadataURI(
             deploymentData.incredibleSquaringServiceManager, metadataURI
@@ -43,13 +68,16 @@ contract SetupMiddleware is Script {
                 multiplier: 1 ether  // TODO: needs oracle
             });
         }
+
+        QuorumConfig memory config = readQuorumConfig();
+        
         ISlashingRegistryCoordinator(deploymentData.slashingRegistryCoordinator).createSlashableStakeQuorum(
             ISlashingRegistryCoordinatorTypes.OperatorSetParam({
-                maxOperatorCount: 32,
-                kickBIPsOfOperatorStake: 10000,  // TODO: chosen arbitrarily
-                kickBIPsOfTotalStake: 100  // TODO: chosen arbitrarily
+                maxOperatorCount: config.maxOperatorCount,
+                kickBIPsOfOperatorStake: config.kickBIPsOfOperatorStake,
+                kickBIPsOfTotalStake: config.kickBIPsOfTotalStake
             }),
-            1, //TODO fix this to a real min
+            config.minimumStake,
             strategyParamsArray,
             0
         );
