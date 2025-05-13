@@ -74,10 +74,7 @@ contract SetupMiddleware is Script {
         IStakeRegistryTypes.StrategyParams[] memory strategyParamsArray =
             new IStakeRegistryTypes.StrategyParams[](strategies.length);
         for (uint256 i = 0; i < strategies.length; i++) {
-            strategyParamsArray[i] = IStakeRegistryTypes.StrategyParams({
-                strategy: strategies[i],
-                multiplier: 1 ether
-            });
+            strategyParamsArray[i] = IStakeRegistryTypes.StrategyParams({strategy: strategies[i], multiplier: 1 ether});
         }
 
         ISlashingRegistryCoordinator(deploymentData.slashingRegistryCoordinator).createSlashableStakeQuorum(
