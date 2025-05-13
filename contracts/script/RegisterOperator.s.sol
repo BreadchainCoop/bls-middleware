@@ -4,7 +4,9 @@ pragma solidity ^0.8.12;
 import {Test, console} from "forge-std/Test.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 import {Script} from "forge-std/Script.sol";
-import {ISignatureUtilsMixin,ISignatureUtilsMixinTypes} from "@eigenlayer/contracts/interfaces/ISignatureUtilsMixin.sol";
+import {
+    ISignatureUtilsMixin, ISignatureUtilsMixinTypes
+} from "@eigenlayer/contracts/interfaces/ISignatureUtilsMixin.sol";
 import {IBLSApkRegistryTypes} from "@eigenlayer-middleware/src/interfaces/IBLSApkRegistry.sol";
 import {BN254} from "@eigenlayer-middleware/src/libraries/BN254.sol";
 import {IRegistryCoordinator} from "@eigenlayer-middleware/src/interfaces/IRegistryCoordinator.sol";
@@ -13,7 +15,10 @@ import {SlashingRegistryCoordinator} from "@eigenlayer-middleware/src/SlashingRe
 import {BN256G2} from "../src/libraries/BN256G2.sol";
 import {IAVSDirectory} from "@eigenlayer/contracts/interfaces/IAVSDirectory.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-import {ISlashingRegistryCoordinator, ISlashingRegistryCoordinatorTypes} from "@eigenlayer-middleware/src/interfaces/ISlashingRegistryCoordinator.sol";
+import {
+    ISlashingRegistryCoordinator,
+    ISlashingRegistryCoordinatorTypes
+} from "@eigenlayer-middleware/src/interfaces/ISlashingRegistryCoordinator.sol";
 import {IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts/interfaces/IAllocationManager.sol";
 import {IStrategy} from "@eigenlayer/contracts/interfaces/IStrategy.sol";
 import {OperatorSet} from "@eigenlayer/contracts/libraries/OperatorSetLib.sol";
@@ -39,7 +44,6 @@ contract RegisterOperator is Script {
     using BN254 for BN254.G1Point;
     using stdJson for string;
 
-
     // Core contracts
     address constant DELEGATION_MANAGER_ADDRESS_HOLESKY = 0xA44151489861Fe9e3055d95adC98FbD462B948e7;
     address constant AVS_DIRECTORY_ADDRESS_HOLESKY = 0x055733000064333CaDDbC92763c58BF0192fFeBf;
@@ -53,7 +57,6 @@ contract RegisterOperator is Script {
 
     address registryCoordinatorMimicOwner = makeAddr("registryCoordinatorMimicOwner");
 
-
     struct Operator {
         address operator;
         uint256 ecdsaPrivateKey;
@@ -61,6 +64,7 @@ contract RegisterOperator is Script {
         BN254.G1Point pk1;
         BN254.G2Point pk2;
     }
+
     function run() public {
         string memory ecdsaPrivateKey = vm.readFile("./private.ecdsa.json");
         uint256 ecdsaPrivateKeyUint = ecdsaPrivateKey.readUint(".privateKey");
@@ -71,7 +75,8 @@ contract RegisterOperator is Script {
         BN254.G1Point memory pk1 = BN254.scalar_mul(BN254.generatorG1(), blsPrivateKeyUint);
         BN254.G2Point memory g2 = BN254.generatorG2();
         BN254.G2Point memory pk2;
-        (pk2.X[1], pk2.X[0], pk2.Y[1], pk2.Y[0]) = BN256G2.ECTwistMul(blsPrivateKeyUint, g2.X[1], g2.X[0], g2.Y[1], g2.Y[0]);
+        (pk2.X[1], pk2.X[0], pk2.Y[1], pk2.Y[0]) =
+            BN256G2.ECTwistMul(blsPrivateKeyUint, g2.X[1], g2.X[0], g2.Y[1], g2.Y[0]);
 
         // ensure correct encoding by checking pairing
         bool result = BN254.pairing(pk1, BN254.negGeneratorG2(), BN254.generatorG1(), pk2);
@@ -89,6 +94,7 @@ contract RegisterOperator is Script {
         registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator);
         vm.stopBroadcast();
     }
+
     function registerOperator(IRegistryCoordinator registryCoordinator, address avs, Operator memory operator)
         internal
     {
@@ -103,16 +109,14 @@ contract RegisterOperator is Script {
             pubkeyG2: operator.pk2,
             pubkeyRegistrationSignature: sig
         });
-        ISlashingRegistryCoordinatorTypes.RegistrationType registrationType = ISlashingRegistryCoordinatorTypes.RegistrationType.NORMAL;
+        ISlashingRegistryCoordinatorTypes.RegistrationType registrationType =
+            ISlashingRegistryCoordinatorTypes.RegistrationType.NORMAL;
         bytes memory encodedParams = abi.encode(registrationType, socket, params);
         uint32[] memory operatorSetIds = new uint32[](1);
         operatorSetIds[0] = 0;
 
-        IAllocationManagerTypes.RegisterParams memory registerParams = IAllocationManagerTypes.RegisterParams({
-            avs: avs,
-            operatorSetIds: operatorSetIds,
-            data: encodedParams
-        });
+        IAllocationManagerTypes.RegisterParams memory registerParams =
+            IAllocationManagerTypes.RegisterParams({avs: avs, operatorSetIds: operatorSetIds, data: encodedParams});
 
         IStrategy[] memory strategies = new IStrategy[](1);
         strategies[0] = IStrategy(LST_STRATEGY_ADDRESS_HOLESKY);
@@ -123,10 +127,7 @@ contract RegisterOperator is Script {
 
         IAllocationManagerTypes.AllocateParams[] memory allocationMods = new IAllocationManagerTypes.AllocateParams[](1);
         allocationMods[0] = IAllocationManagerTypes.AllocateParams({
-            operatorSet: OperatorSet({
-                avs: avs,
-                id: 0
-            }),
+            operatorSet: OperatorSet({avs: avs, id: 0}),
             strategies: strategies,
             newMagnitudes: newMagnitudes
         });
@@ -135,8 +136,7 @@ contract RegisterOperator is Script {
         vm.roll(block.number + 1); // Workaround for testnet, txs can't be in the same block
 
         IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
-            operator.operator,
-            registerParams
+            operator.operator, registerParams
         );
     }
 
