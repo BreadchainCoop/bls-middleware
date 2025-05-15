@@ -65,6 +65,16 @@ contract RegisterOperator is Script {
         BN254.G2Point pk2;
     }
 
+
+    function readIPConfig() internal view returns (string memory) {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, "/docker/eigenlayer/config.json");
+        string memory json = vm.readFile(path);
+        
+        // Read the operator socket address from config
+        return vm.parseJsonString(json, "$.operator.socketAddress");
+    }
+
     function run() public {
         string memory ecdsaPrivateKey = vm.readFile("./private.ecdsa.json");
         uint256 ecdsaPrivateKeyUint = ecdsaPrivateKey.readUint(".privateKey");
@@ -99,7 +109,8 @@ contract RegisterOperator is Script {
         internal
     {
         bytes memory quorumNumbers = hex"00";
-        string memory socket = "foo.bar";
+        // Read the socket address from config instead of hardcoding "foo.bar"
+        string memory socket = readIPConfig();
 
         BN254.G1Point memory h = registryCoordinator.pubkeyRegistrationMessageHash(operator.operator);
         BN254.G1Point memory sig = BN254.scalar_mul(h, operator.blsPrivateKey);
