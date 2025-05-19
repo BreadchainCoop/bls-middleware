@@ -23,6 +23,23 @@ import {IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts
 import {IStrategy} from "@eigenlayer/contracts/interfaces/IStrategy.sol";
 import {OperatorSet} from "@eigenlayer/contracts/libraries/OperatorSetLib.sol";
 
+// Mainnet
+// DELEGATION_MANAGER_ADDRESS=0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A
+// Holesky
+// DELEGATION_MANAGER_ADDRESS=0xA44151489861Fe9e3055d95adC98FbD462B948e7
+// Mainnet
+// STRATEGY_MANAGER_ADDRESS=0x858646372CC42E1A627fcE94aa7A7033e7CF075A
+// Holesky
+// STRATEGY_MANAGER_ADDRESS=0xdfB5f6CE42aAA7830E94ECFCcAd411beF4d4D5b6
+// Holesky stETH
+// LST_CONTRACT_ADDRESS=0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034
+// Mainnet stETH
+// LST_CONTRACT_ADDRESS=0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84
+// Holesky stETH strategy
+// LST_STRATEGY_ADDRESS=0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3
+// Mainnet stETH strategy
+// LST_STRATEGY_ADDRESS=0x93c4b944D05dfe6df7645A86cd2206016c51564D
+
 contract RegisterOperator is Script {
     using BN254 for BN254.G1Point;
     using stdJson for string;
