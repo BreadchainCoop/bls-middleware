@@ -23,23 +23,6 @@ import {IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts
 import {IStrategy} from "@eigenlayer/contracts/interfaces/IStrategy.sol";
 import {OperatorSet} from "@eigenlayer/contracts/libraries/OperatorSetLib.sol";
 
-// Mainnet
-// DELEGATION_MANAGER_ADDRESS=0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A
-// Holesky
-// DELEGATION_MANAGER_ADDRESS=0xA44151489861Fe9e3055d95adC98FbD462B948e7
-// Mainnet
-// STRATEGY_MANAGER_ADDRESS=0x858646372CC42E1A627fcE94aa7A7033e7CF075A
-// Holesky
-// STRATEGY_MANAGER_ADDRESS=0xdfB5f6CE42aAA7830E94ECFCcAd411beF4d4D5b6
-// Holesky stETH
-// LST_CONTRACT_ADDRESS=0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034
-// Mainnet stETH
-// LST_CONTRACT_ADDRESS=0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84
-// Holesky stETH strategy
-// LST_STRATEGY_ADDRESS=0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3
-// Mainnet stETH strategy
-// LST_STRATEGY_ADDRESS=0x93c4b944D05dfe6df7645A86cd2206016c51564D
-
 contract RegisterOperator is Script {
     using BN254 for BN254.G1Point;
     using stdJson for string;
@@ -65,17 +48,22 @@ contract RegisterOperator is Script {
         BN254.G2Point pk2;
     }
 
-
-    function readIPConfig() internal view returns (string memory) {
+    function readIPConfig(string memory operatorId) internal view returns (string memory) {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/docker/eigenlayer/config.json");
         string memory json = vm.readFile(path);
         
-        // Read the operator socket address from config
-        return vm.parseJsonString(json, "$.operator.socketAddress");
+        // Read the operator socket address from config using the operator ID
+        return vm.parseJsonString(json, string.concat("$.operators.", operatorId, ".socketAddress"));
     }
 
     function run() public {
+        // Get the operator ID from the environment variable
+        string memory operatorId = vm.envString("OPERATOR_ID");
+        if (bytes(operatorId).length == 0) {
+            revert("OPERATOR_ID environment variable not set");
+        }
+
         string memory ecdsaPrivateKey = vm.readFile("./private.ecdsa.json");
         uint256 ecdsaPrivateKeyUint = ecdsaPrivateKey.readUint(".privateKey");
         vm.startBroadcast(ecdsaPrivateKeyUint);
@@ -101,16 +89,19 @@ contract RegisterOperator is Script {
         string memory json = vm.readFile("./avs_deploy.json");
         address registryCoordinator = json.readAddress(".addresses.registryCoordinator");
         address serviceManager = json.readAddress(".addresses.IncredibleSquaringServiceManager");
-        registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator);
+        registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator, operatorId);
         vm.stopBroadcast();
     }
 
-    function registerOperator(IRegistryCoordinator registryCoordinator, address avs, Operator memory operator)
-        internal
-    {
+    function registerOperator(
+        IRegistryCoordinator registryCoordinator, 
+        address avs, 
+        Operator memory operator,
+        string memory operatorId
+    ) internal {
         bytes memory quorumNumbers = hex"00";
-        // Read the socket address from config instead of hardcoding "foo.bar"
-        string memory socket = readIPConfig();
+        // Read the socket address from config for the specific operator
+        string memory socket = readIPConfig(operatorId);
 
         BN254.G1Point memory h = registryCoordinator.pubkeyRegistrationMessageHash(operator.operator);
         BN254.G1Point memory sig = BN254.scalar_mul(h, operator.blsPrivateKey);
