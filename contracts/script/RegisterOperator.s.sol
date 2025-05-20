@@ -65,7 +65,22 @@ contract RegisterOperator is Script {
         BN254.G2Point pk2;
     }
 
+    function readIPConfig(string memory operatorId) internal view returns (string memory) {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, "/docker/eigenlayer/config.json");
+        string memory json = vm.readFile(path);
+        
+        // Read the operator socket address from config using the operator ID
+        return vm.parseJsonString(json, string.concat("$.operators.", operatorId, ".socketAddress"));
+    }
+
     function run() public {
+        // Get the operator ID from the environment variable
+        string memory operatorId = vm.envString("OPERATOR_ID");
+        if (bytes(operatorId).length == 0) {
+            revert("OPERATOR_ID environment variable not set");
+        }
+
         string memory ecdsaPrivateKey = vm.readFile("./private.ecdsa.json");
         uint256 ecdsaPrivateKeyUint = ecdsaPrivateKey.readUint(".privateKey");
         vm.startBroadcast(ecdsaPrivateKeyUint);
@@ -91,15 +106,19 @@ contract RegisterOperator is Script {
         string memory json = vm.readFile("./avs_deploy.json");
         address registryCoordinator = json.readAddress(".addresses.registryCoordinator");
         address serviceManager = json.readAddress(".addresses.IncredibleSquaringServiceManager");
-        registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator);
+        registerOperator(IRegistryCoordinator(registryCoordinator), serviceManager, operator, operatorId);
         vm.stopBroadcast();
     }
 
-    function registerOperator(IRegistryCoordinator registryCoordinator, address avs, Operator memory operator)
-        internal
-    {
+    function registerOperator(
+        IRegistryCoordinator registryCoordinator, 
+        address avs, 
+        Operator memory operator,
+        string memory operatorId
+    ) internal {
         bytes memory quorumNumbers = hex"00";
-        string memory socket = "foo.bar";
+        // Read the socket address from config for the specific operator
+        string memory socket = readIPConfig(operatorId);
 
         BN254.G1Point memory h = registryCoordinator.pubkeyRegistrationMessageHash(operator.operator);
         BN254.G1Point memory sig = BN254.scalar_mul(h, operator.blsPrivateKey);
