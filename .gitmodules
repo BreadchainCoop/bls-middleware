@@ -4,3 +4,6 @@
 [submodule "contracts/lib/eigenlayer-middleware"]
 	path = contracts/lib/eigenlayer-middleware
 	url = https://github.com/layr-labs/eigenlayer-middleware.git
+[submodule "contracts/lib/avs-commonware-counter"]
+	path = contracts/lib/avs-commonware-counter
+	url = https://github.com/BreadchainCoop/avs-commonware-counter
