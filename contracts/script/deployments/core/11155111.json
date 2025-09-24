@@ -15,6 +15,11 @@
         "eigenPodManagerImpl": "0x7c49b62c83e3eace83feaa4b261a775b7781fbee",
         "strategyFactory": "0x9252c967c5a2dcb984c5cba73b4aa509aa987b9e",
         "rewardsCoordinator": "0xeca058dfc121b68b900ce8a984258630e3719795",
-        "strategyBeacon": "0x1030f8f2c51ce623113711bec6af51b4e96b223f"
+        "strategyBeacon": "0x1030f8f2c51ce623113711bec6af51b4e96b223f",
+        "allocationManager": "0x42583067658071247ec8CE0A516A58f682002d07",
+        "rewardsCoordinator": "0x5ae8152fb88c26ff9ca5C014c94fca3c68029349",
+        "rewardsCoordinatorImpl": "0xcC305562B01bec562D13A40ef8781e313AFE7940",
+        "permissionController": "0x44632dfBdCb6D3E21EF613B0ca8A6A0c618F5a37",
+        "pauserRegistry": "0x63AAe451780090f50Ad323aAEF155F63a29D20f3"
     }
 }
