@@ -92,7 +92,6 @@ contract RegisterOperator is Script {
         Operator memory operator,
         string memory operatorId
     ) internal {
-        bytes memory quorumNumbers = hex"00";
         // Read the socket address from config for the specific operator
         string memory socket = readIPConfig(operatorId);
 
