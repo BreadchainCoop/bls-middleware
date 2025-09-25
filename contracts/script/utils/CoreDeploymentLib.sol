@@ -398,6 +398,14 @@ library CoreDeploymentLib {
         data.allocationManager = json.readAddress(".addresses.allocationManager");
         data.permissionController = json.readAddress(".addresses.permissionController");
 
+        // Optional LST strategy/token (present in our per-chain deployment configs)
+        if (vm.keyExists(json, ".addresses.lstStrategy")) {
+            data.lstStrategy = json.readAddress(".addresses.lstStrategy");
+        }
+        if (vm.keyExists(json, ".addresses.lstToken")) {
+            data.lstToken = json.readAddress(".addresses.lstToken");
+        }
+
         return data;
     }
 

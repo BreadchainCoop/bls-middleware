@@ -241,8 +241,6 @@ library IncredibleSquaringDeploymentLib {
         UpgradeableProxyLib.upgrade(result.socketRegistry, socketRegistryImpl);
         RegistryCoordinator(result.slashingRegistryCoordinator).unpause(0);
 
-        IAllocationManagerTypes.CreateSetParams[] memory createSetParams =
-            new IAllocationManagerTypes.CreateSetParams[](1);
         IStrategy[] memory strategies = new IStrategy[](deployedStrategyArray.length);
         for (uint256 i = 0; i < deployedStrategyArray.length; i++) {
             strategies[i] = deployedStrategyArray[i];
