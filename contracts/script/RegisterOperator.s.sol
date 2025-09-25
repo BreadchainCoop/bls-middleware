@@ -119,14 +119,6 @@ contract RegisterOperator is Script {
         // 1e18 is 100%
         newMagnitudes[0] = 1e18;
 
-        // Register first to initialize allocation delay for the operator
-        IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
-            operator.operator, registerParams
-        );
-
-        vm.roll(block.number + 1); // Workaround for testnet, txs can't be in the same block
-
-        // Then set allocations
         IAllocationManagerTypes.AllocateParams[] memory allocationMods = new IAllocationManagerTypes.AllocateParams[](1);
         allocationMods[0] = IAllocationManagerTypes.AllocateParams({
             operatorSet: OperatorSet({avs: avs, id: 0}),
@@ -134,6 +126,12 @@ contract RegisterOperator is Script {
             newMagnitudes: newMagnitudes
         });
         IAllocationManager(registryCoordinator.allocationManager()).modifyAllocations(operator.operator, allocationMods);
+
+        vm.roll(block.number + 1); // Workaround for testnet, txs can't be in the same block
+
+        IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
+            operator.operator, registerParams
+        );
     }
 
     function _newOperatorRegistrationSignature(Operator memory operator, address avs, bytes32 salt, uint256 expiry)
