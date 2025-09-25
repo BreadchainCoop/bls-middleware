@@ -85,6 +85,8 @@ library CoreDeploymentLib {
         address strategyFactory;
         address strategyBeacon;
         address permissionController;
+        address lstStrategy;
+        address lstToken;
     }
 
     function deployContracts(address deployer, address proxyAdmin, DeploymentConfigData memory configData)

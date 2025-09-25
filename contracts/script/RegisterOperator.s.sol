@@ -22,38 +22,14 @@ import {
 import {IAllocationManager, IAllocationManagerTypes} from "@eigenlayer/contracts/interfaces/IAllocationManager.sol";
 import {IStrategy} from "@eigenlayer/contracts/interfaces/IStrategy.sol";
 import {OperatorSet} from "@eigenlayer/contracts/libraries/OperatorSetLib.sol";
-
-// Mainnet
-// DELEGATION_MANAGER_ADDRESS=0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A
-// Holesky
-// DELEGATION_MANAGER_ADDRESS=0xA44151489861Fe9e3055d95adC98FbD462B948e7
-// Mainnet
-// STRATEGY_MANAGER_ADDRESS=0x858646372CC42E1A627fcE94aa7A7033e7CF075A
-// Holesky
-// STRATEGY_MANAGER_ADDRESS=0xdfB5f6CE42aAA7830E94ECFCcAd411beF4d4D5b6
-// Holesky stETH
-// LST_CONTRACT_ADDRESS=0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034
-// Mainnet stETH
-// LST_CONTRACT_ADDRESS=0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84
-// Holesky stETH strategy
-// LST_STRATEGY_ADDRESS=0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3
-// Mainnet stETH strategy
-// LST_STRATEGY_ADDRESS=0x93c4b944D05dfe6df7645A86cd2206016c51564D
+import {CoreDeploymentLib} from "./utils/CoreDeploymentLib.sol";
 
 contract RegisterOperator is Script {
     using BN254 for BN254.G1Point;
     using stdJson for string;
 
-    // Core contracts
-    address constant DELEGATION_MANAGER_ADDRESS_HOLESKY = 0xA44151489861Fe9e3055d95adC98FbD462B948e7;
-    address constant AVS_DIRECTORY_ADDRESS_HOLESKY = 0x055733000064333CaDDbC92763c58BF0192fFeBf;
-    address constant STRATEGY_MANAGER_ADDRESS_HOLESKY = 0xdfB5f6CE42aAA7830E94ECFCcAd411beF4d4D5b6;
-    // LST contracts
-    address constant LST_CONTRACT_ADDRESS_HOLESKY = 0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034;
-    address constant LST_STRATEGY_ADDRESS_HOLESKY = 0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3;
-    // Opacity middleware contracts
-    address constant OPACITY_REGISTRY_COORDINATOR_ADDRESS_HOLESKY = 0x3e43AA225b5cB026C5E8a53f62572b10D526a50B;
-    address constant OPACTIY_AVS_ADDRESS_HOLESKY = 0xbfc5d26C6eEb46475eB3960F5373edC5341eE535;
+    CoreDeploymentLib.DeploymentData internal _configData =
+        CoreDeploymentLib.readDeploymentJson("script/deployments/core/", block.chainid);
 
     address registryCoordinatorMimicOwner = makeAddr("registryCoordinatorMimicOwner");
 
@@ -69,7 +45,7 @@ contract RegisterOperator is Script {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/docker/eigenlayer/config.json");
         string memory json = vm.readFile(path);
-        
+
         // Read the operator socket address from config using the operator ID
         return vm.parseJsonString(json, string.concat("$.operators.", operatorId, ".socketAddress"));
     }
@@ -111,8 +87,8 @@ contract RegisterOperator is Script {
     }
 
     function registerOperator(
-        IRegistryCoordinator registryCoordinator, 
-        address avs, 
+        IRegistryCoordinator registryCoordinator,
+        address avs,
         Operator memory operator,
         string memory operatorId
     ) internal {
@@ -138,7 +114,7 @@ contract RegisterOperator is Script {
             IAllocationManagerTypes.RegisterParams({avs: avs, operatorSetIds: operatorSetIds, data: encodedParams});
 
         IStrategy[] memory strategies = new IStrategy[](1);
-        strategies[0] = IStrategy(LST_STRATEGY_ADDRESS_HOLESKY);
+        strategies[0] = IStrategy(_configData.lstStrategy);
         uint64[] memory newMagnitudes = new uint64[](1);
         // Ref: https://github.com/Layr-Labs/eigenlayer-contracts/blob/734f7361884d24fe51961b342e93dde1290961d0/src/contracts/libraries/SlashingLib.sol#L12
         // 1e18 is 100%
@@ -164,7 +140,7 @@ contract RegisterOperator is Script {
         view
         returns (ISignatureUtilsMixinTypes.SignatureWithSaltAndExpiry memory)
     {
-        bytes32 operatorRegistrationDigestHash = IAVSDirectory(AVS_DIRECTORY_ADDRESS_HOLESKY)
+        bytes32 operatorRegistrationDigestHash = IAVSDirectory(_configData.avsDirectory)
             .calculateOperatorAVSRegistrationDigestHash(operator.operator, avs, salt, expiry);
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(operator.ecdsaPrivateKey, operatorRegistrationDigestHash);

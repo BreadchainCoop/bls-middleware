@@ -20,6 +20,8 @@
         "rewardsCoordinator": "0x5ae8152fb88c26ff9ca5C014c94fca3c68029349",
         "rewardsCoordinatorImpl": "0xcC305562B01bec562D13A40ef8781e313AFE7940",
         "permissionController": "0x44632dfBdCb6D3E21EF613B0ca8A6A0c618F5a37",
-        "pauserRegistry": "0x63AAe451780090f50Ad323aAEF155F63a29D20f3"
+        "pauserRegistry": "0x63AAe451780090f50Ad323aAEF155F63a29D20f3",
+        "lstStrategy": "0x8b29d91e67b013e855EaFe0ad704aC4Ab086a574",
+        "lstToken": "0x00c71b0fCadE911B2feeE9912DE4Fe19eB04ca56"
     }
 }
