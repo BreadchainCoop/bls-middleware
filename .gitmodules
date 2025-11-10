@@ -7,3 +7,6 @@
 [submodule "contracts/lib/avs-commonware-counter"]
 	path = contracts/lib/avs-commonware-counter
 	url = https://github.com/BreadchainCoop/avs-commonware-counter
+[submodule "contracts/lib/hourglass-monorepo"]
+	path = contracts/lib/hourglass-monorepo
+	url = https://github.com/Layr-Labs/hourglass-monorepo
