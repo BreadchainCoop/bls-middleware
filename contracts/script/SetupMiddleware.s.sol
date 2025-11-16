@@ -57,12 +57,11 @@ contract SetupMiddleware is Script {
         config.metadataURI = vm.parseJsonString(json, "$.metadata.uri");
     }
 
-    function run() external {
+    function run(address operatorSetStrategy) external {
         vm.startBroadcast(deployer);
 
         QuorumConfig memory config = readQuorumConfig();
 
-        address operatorSetStrategy = 0x7D704507b76571a51d9caE8AdDAbBFd0ba0e63d3;
         string memory metadataURI = config.metadataURI;
 
         IAllocationManager(coreData.allocationManager).updateAVSMetadataURI(
