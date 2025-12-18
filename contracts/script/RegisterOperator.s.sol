@@ -5,7 +5,8 @@ import {Test, console} from "forge-std/Test.sol";
 import {StdCheats} from "forge-std/StdCheats.sol";
 import {Script} from "forge-std/Script.sol";
 import {
-    ISignatureUtilsMixin, ISignatureUtilsMixinTypes
+    ISignatureUtilsMixin,
+    ISignatureUtilsMixinTypes
 } from "@eigenlayer/contracts/interfaces/ISignatureUtilsMixin.sol";
 import {IBLSApkRegistryTypes} from "@eigenlayer-middleware/src/interfaces/IBLSApkRegistry.sol";
 import {BN254} from "@eigenlayer-middleware/src/libraries/BN254.sol";
@@ -69,7 +70,7 @@ contract RegisterOperator is Script {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/docker/eigenlayer/config.json");
         string memory json = vm.readFile(path);
-        
+
         // Read the operator socket address from config using the operator ID
         return vm.parseJsonString(json, string.concat("$.operators.", operatorId, ".socketAddress"));
     }
@@ -111,8 +112,8 @@ contract RegisterOperator is Script {
     }
 
     function registerOperator(
-        IRegistryCoordinator registryCoordinator, 
-        address avs, 
+        IRegistryCoordinator registryCoordinator,
+        address avs,
         Operator memory operator,
         string memory operatorId
     ) internal {
@@ -124,12 +125,10 @@ contract RegisterOperator is Script {
         BN254.G1Point memory sig = BN254.scalar_mul(h, operator.blsPrivateKey);
 
         IBLSApkRegistryTypes.PubkeyRegistrationParams memory params = IBLSApkRegistryTypes.PubkeyRegistrationParams({
-            pubkeyG1: operator.pk1,
-            pubkeyG2: operator.pk2,
-            pubkeyRegistrationSignature: sig
+            pubkeyG1: operator.pk1, pubkeyG2: operator.pk2, pubkeyRegistrationSignature: sig
         });
         ISlashingRegistryCoordinatorTypes.RegistrationType registrationType =
-            ISlashingRegistryCoordinatorTypes.RegistrationType.NORMAL;
+        ISlashingRegistryCoordinatorTypes.RegistrationType.NORMAL;
         bytes memory encodedParams = abi.encode(registrationType, socket, params);
         uint32[] memory operatorSetIds = new uint32[](1);
         operatorSetIds[0] = 0;
@@ -148,17 +147,14 @@ contract RegisterOperator is Script {
 
         IAllocationManagerTypes.AllocateParams[] memory allocationMods = new IAllocationManagerTypes.AllocateParams[](1);
         allocationMods[0] = IAllocationManagerTypes.AllocateParams({
-            operatorSet: OperatorSet({avs: avs, id: 0}),
-            strategies: strategies,
-            newMagnitudes: newMagnitudes
+            operatorSet: OperatorSet({avs: avs, id: 0}), strategies: strategies, newMagnitudes: newMagnitudes
         });
         IAllocationManager(registryCoordinator.allocationManager()).modifyAllocations(operator.operator, allocationMods);
 
         vm.roll(block.number + 1); // Workaround for testnet, txs can't be in the same block
 
-        IAllocationManager(registryCoordinator.allocationManager()).registerForOperatorSets(
-            operator.operator, registerParams
-        );
+        IAllocationManager(registryCoordinator.allocationManager())
+            .registerForOperatorSets(operator.operator, registerParams);
     }
 
     function _newOperatorRegistrationSignature(Operator memory operator, address avs, bytes32 salt, uint256 expiry)

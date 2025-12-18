@@ -66,9 +66,8 @@ contract SetupMiddleware is Script {
         require(operatorSetStrategy != address(0), "LST_STRATEGY_ADDRESS env var not set or invalid");
         string memory metadataURI = config.metadataURI;
 
-        IAllocationManager(coreData.allocationManager).updateAVSMetadataURI(
-            deploymentData.incredibleSquaringServiceManager, metadataURI
-        );
+        IAllocationManager(coreData.allocationManager)
+            .updateAVSMetadataURI(deploymentData.incredibleSquaringServiceManager, metadataURI);
         IStrategy[] memory strategies = new IStrategy[](1);
         strategies[0] = IStrategy(operatorSetStrategy);
 
@@ -78,16 +77,17 @@ contract SetupMiddleware is Script {
             strategyParamsArray[i] = IStakeRegistryTypes.StrategyParams({strategy: strategies[i], multiplier: 1 ether});
         }
 
-        ISlashingRegistryCoordinator(deploymentData.slashingRegistryCoordinator).createSlashableStakeQuorum(
-            ISlashingRegistryCoordinatorTypes.OperatorSetParam({
-                maxOperatorCount: config.maxOperatorCount,
-                kickBIPsOfOperatorStake: config.kickBIPsOfOperatorStake,
-                kickBIPsOfTotalStake: config.kickBIPsOfTotalStake
-            }),
-            config.minimumStake,
-            strategyParamsArray,
-            0
-        );
+        ISlashingRegistryCoordinator(deploymentData.slashingRegistryCoordinator)
+            .createSlashableStakeQuorum(
+                ISlashingRegistryCoordinatorTypes.OperatorSetParam({
+                    maxOperatorCount: config.maxOperatorCount,
+                    kickBIPsOfOperatorStake: config.kickBIPsOfOperatorStake,
+                    kickBIPsOfTotalStake: config.kickBIPsOfTotalStake
+                }),
+                config.minimumStake,
+                strategyParamsArray,
+                0
+            );
 
         vm.stopBroadcast();
     }
