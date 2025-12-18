@@ -111,6 +111,7 @@ contract IncredibleSquaringDeployer is Script {
         proxyAdmin = UpgradeableProxyLib.deployProxyAdmin();
         require(address(incredibleSquaringStrategy) != address(0));
         address lstStrategyAddress = vm.envAddress("LST_STRATEGY_ADDRESS");
+        require(lstStrategyAddress != address(0), "LST_STRATEGY_ADDRESS env var not set or invalid");
         incrediblSquaringDeployment = IncredibleSquaringDeploymentLib.deployContracts(
             proxyAdmin, configData, lstStrategyAddress, isConfig, deployer
         );

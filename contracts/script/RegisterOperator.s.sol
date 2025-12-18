@@ -139,6 +139,7 @@ contract RegisterOperator is Script {
 
         IStrategy[] memory strategies = new IStrategy[](1);
         address lstStrategyAddress = vm.envAddress("LST_STRATEGY_ADDRESS");
+        require(lstStrategyAddress != address(0), "LST_STRATEGY_ADDRESS env var not set or invalid");
         strategies[0] = IStrategy(lstStrategyAddress);
         uint64[] memory newMagnitudes = new uint64[](1);
         // Ref: https://github.com/Layr-Labs/eigenlayer-contracts/blob/734f7361884d24fe51961b342e93dde1290961d0/src/contracts/libraries/SlashingLib.sol#L12

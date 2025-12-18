@@ -63,6 +63,7 @@ contract SetupMiddleware is Script {
         QuorumConfig memory config = readQuorumConfig();
 
         address operatorSetStrategy = vm.envAddress("LST_STRATEGY_ADDRESS");
+        require(operatorSetStrategy != address(0), "LST_STRATEGY_ADDRESS env var not set or invalid");
         string memory metadataURI = config.metadataURI;
 
         IAllocationManager(coreData.allocationManager).updateAVSMetadataURI(
