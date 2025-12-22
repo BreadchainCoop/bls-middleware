@@ -1,3 +1,7 @@
 debug/
 target/
 
+
+# Local test directories
+eigenlayer-bls-local-pr/
+eigenlayer-bls-local-test/
