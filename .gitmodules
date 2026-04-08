@@ -4,7 +4,3 @@
 [submodule "contracts/lib/eigenlayer-middleware"]
 	path = contracts/lib/eigenlayer-middleware
 	url = https://github.com/layr-labs/eigenlayer-middleware.git
-[submodule "contracts/lib/commonware-restaking-contracts"]
-	path = contracts/lib/commonware-restaking-contracts
-	url = https://github.com/BreadchainCoop/commonware-restaking-contracts
-	branch = bagelface/add-service-manager-wrapper
