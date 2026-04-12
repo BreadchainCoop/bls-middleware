@@ -1,6 +1,7 @@
 {
     "lastUpdated": "v0.4.3-mainnet-foundation-incentives",
     "addresses": {
+        "allocationManager": "0x948a420b8CC1d6BFd0B6087C2E7c344a2CD0bc39",
         "avsDirectory": "0x135dda560e946695d6f155dacafc6f1f25c1f5af",
         "avsDirectoryImplementation": "0xdabdb3cd346b7d5f5779b0b614ede1cc9dcba5b7",
         "beaconOracle": "0x343907185b71aDF0eBa9567538314396aa985442",
@@ -16,6 +17,8 @@
         "eigenPodManager": "0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338",
         "eigenPodManagerImplementation": "0x731A0aD160e407393Ff662231Add6Dd145AD3FEa",
         "emptyContract": "0x1f96861fEFa1065a5A96F20Deb6D8DC3ff48F7f9",
+        "pauserRegistry": "0xB8765ed72235d279c3Fb53936E4606db0Ef12806",
+        "permissionController": "0x25E5F8B1E7aDf44518d35D5B2271f114e081f0E5",
         "rewardsCoordinator": "0x7750d328b314EfFa365A0402CcfD489B80B0adda",
         "rewardsCoordinatorImplementation": "0xb6738A8E7793D44c5895B6A6F2a62F6bF86Ba8d2",
         "slasher": "0xD92145c07f8Ed1D392c1B88017934E301CC1c3Cd",
