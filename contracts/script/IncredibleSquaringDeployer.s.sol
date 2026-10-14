@@ -103,8 +103,13 @@ contract IncredibleSquaringDeployer is Script {
         FundOperator.fund_operator(address(erc20Mock), isConfig.operator_addr, 15000e18);
         FundOperator.fund_operator(address(erc20Mock), isConfig.operator_2_addr, 30000e18);
         console.log(isConfig.operator_2_addr);
-        (bool s,) = isConfig.operator_2_addr.call{value: 0.1 ether}("");
-        require(s);
+        // Gas money for the example's second operator. Only meaningful on a local Anvil chain,
+        // where the deployer has unlimited test ETH; on a public network this gives real ETH to a
+        // fixture address from incredible_squaring_config.json that nothing else uses.
+        if (block.chainid == 31337) {
+            (bool s,) = isConfig.operator_2_addr.call{value: 0.1 ether}("");
+            require(s);
+        }
         incredibleSquaringStrategy = IStrategy(StrategyFactory(configData.strategyFactory).deployNewStrategy(erc20Mock));
         rewardscoordinator = configData.rewardsCoordinator;
 
