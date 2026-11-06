@@ -5,7 +5,3 @@ target/
 # Local test directories
 eigenlayer-bls-local-pr/
 eigenlayer-bls-local-test/
-branch_structure.json
-temp_auto_push.bat
-temp_interactive_push.bat
-.gitignore
